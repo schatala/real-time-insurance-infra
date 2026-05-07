@@ -1,5 +1,5 @@
 module "api_gateway" {
-  source = "git::https://github.com/kfbmic/tf-module-api-gateway.git?ref=v1.0.0"
+  source = "git::https://github.com/schatala/tf-module-api-gateway.git?ref=v1.0.0"
 
   name          = "${var.application_name}-${var.env_tier}-api-gateway"
   is_production = false
