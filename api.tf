@@ -31,6 +31,12 @@ module "soap_api_gateway" {
   is_production = false
   jwt_audience  = ["${var.entra_audience}"]
 
+  custom_ip_whitelist = [
+    "192.0.2.10/32",   # replace with real SOAP consumer IP
+    "192.0.2.20/32",   # replace with real SOAP consumer IP
+    "198.51.100.5/32", # replace with real SOAP consumer IP
+  ]
+
   routes = [
     {
       path       = "/soap"
