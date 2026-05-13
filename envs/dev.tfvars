@@ -8,3 +8,6 @@ db_engine_mode = "serverless"
 replicas = 1
 serverless_v2_min_acu = 0.5
 serverless_v2_max_acu = 2
+soap_api_certificate_arn = "arn:aws:acm:us-east-1:XXXXXXXXXXXX:certificate/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+soap_api_domain_name  = "soap-api-dev.devkyfb.com"
+soap_api_hosted_zone  = "devkyfb.com"

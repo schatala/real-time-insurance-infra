@@ -66,3 +66,18 @@ variable "serverless_v2_max_acu" {
   type        = number
   default     = 2
 }
+
+variable "soap_api_certificate_arn" {
+  description = "ARN of the ACM certificate for soap-api-dev.devkyfb.com. Created manually in the AWS console — copy the ARN from ACM and paste it into dev.tfvars."
+  type        = string
+}
+
+variable "soap_api_domain_name" {
+  description = "Full subdomain for the SOAP API (e.g. soap-api-dev.devkyfb.com)."
+  type        = string
+}
+
+variable "soap_api_hosted_zone" {
+  description = "The Route 53 hosted zone the subdomain belongs to (e.g. devkyfb.com)."
+  type        = string
+}
