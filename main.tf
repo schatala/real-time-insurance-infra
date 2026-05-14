@@ -31,3 +31,27 @@ provider "aws" {
     }
   }
 }
+
+# ── network account provider — for Route 53 resources in devkyfb.com ────────
+# devkyfb.com is registered in a separate network account.
+# All Route 53 resources in soap_domain.tf use provider = aws.networkacc.
+provider "aws" {
+  alias  = "networkacc"
+  region = "us-east-1"
+
+  assume_role {
+    role_arn = "arn:aws:iam::${var.network_account_id}:role/kfb-terraform-assume-role"
+  }
+
+  default_tags {
+    tags = {
+      "application_name"     = "realtimeinsurance"
+      "terraform"            = "true"
+      "source"               = "github.com/kfbmic/real-time-insurance-infra"
+      "created_by"           = "PlatformEngineering@kyfb.com"
+      "requested_by"         = "PMOGroup@kyfb.com"
+      "owned_by"             = "CloudOps@kyfb.com"
+      "business_ops_category" = "POL"
+    }
+  }
+}

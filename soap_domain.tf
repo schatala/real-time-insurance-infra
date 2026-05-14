@@ -1,23 +1,22 @@
 # ---------------------------------------------------------------------------
 # soap_domain.tf  →  real-time-insurance-infra
 #
-# ACM certificate is created manually in the AWS console and its ARN is
-# passed in via var.soap_api_certificate_arn in dev.tfvars.
+# Route 53 resources use provider = aws.networkacc because devkyfb.com is
+# registered in the network account, not the destination account.
 #
-# This file manages:
-#   1. Route 53 hosted zone lookup
-#   2. S3 bucket for mTLS truststore (upload CA cert here when ready)
-#   3. Route 53 CNAME pointing soap-api-dev.devkyfb.com → API Gateway
+# The S3 truststore bucket uses the default provider (destination account)
+# because it is an application resource, not a DNS resource.
 # ---------------------------------------------------------------------------
 
-# ── 1. Look up the existing devkyfb.com hosted zone ─────────────────────────
+# ── Route 53 hosted zone lookup (network account) ───────────────────────────
 
-data "aws_route53_zone" "soap_api" {
+data "aws_route53_zone" "devkyfb" {
+  provider = aws.networkacc
   name         = var.soap_api_hosted_zone
   private_zone = false
 }
 
-# ── 2. S3 bucket for mTLS truststore ────────────────────────────────────────
+# ── S3 bucket for mTLS truststore (destination account) ─────────────────────
 # Upload your CA certificate here when you are ready to enable mTLS:
 #   aws s3 cp ca.crt s3://<bucket-name>/truststore.pem
 
@@ -31,7 +30,7 @@ resource "aws_s3_bucket" "soap_api_truststore" {
 
 resource "aws_s3_bucket_versioning" "soap_api_truststore" {
   bucket = aws_s3_bucket.soap_api_truststore.id
-
+  
   versioning_configuration {
     status = "Enabled"
   }
@@ -45,11 +44,12 @@ resource "aws_s3_bucket_public_access_block" "soap_api_truststore" {
   restrict_public_buckets = true
 }
 
-# ── 3. Route 53 CNAME — subdomain → API Gateway regional endpoint ────────────
-# Created after the custom domain is live in the module.
+# ── Route 53 CNAME — subdomain → API Gateway regional endpoint ──────────────
+# Uses networkacc provider because the hosted zone lives in the network account.
 
 resource "aws_route53_record" "soap_api" {
-  zone_id = data.aws_route53_zone.soap_api.zone_id
+  provider = aws.networkacc
+  zone_id = data.aws_route53_zone.devkyfb.zone_id
   name    = var.soap_api_domain_name
   type    = "CNAME"
   ttl     = 300
@@ -64,6 +64,6 @@ output "soap_api_url" {
 }
 
 output "soap_api_truststore_bucket" {
-  description = "Upload your mTLS CA cert PEM to this bucket as truststore.pem then uncomment mtls_truststore_uri in api.tf."
+  description = "Upload your mTLS CA cert PEM to this bucket as truststore.pem, then uncomment mtls_truststore_uri in api.tf."
   value       = "s3://${aws_s3_bucket.soap_api_truststore.bucket}/truststore.pem"
 }

@@ -81,3 +81,8 @@ variable "soap_api_hosted_zone" {
   description = "The Route 53 hosted zone the subdomain belongs to (e.g. devkyfb.com)."
   type        = string
 }
+
+variable "network_account_id" {
+  description = "AWS Account ID of the network account where devkyfb.com is registered in Route 53. Used by the aws.networkacc provider."
+  type        = string
+}
